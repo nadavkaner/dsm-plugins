@@ -1,46 +1,42 @@
-import { useEffect, useCallback } from 'react';
-import logo from './logo.svg';
-import './App.css';
-
+import { useEffect, useCallback, useState } from "react";
+import "./App.css";
 
 const PLUGIN_MESSAGE_API = {
-  initialized: 'initialized'
+  initialized: "initialized",
 };
 
 function App() {
-  
+  const [styleguide, setStyleguide] = useState({});
+
   useEffect(() => {
-    window.parent.postMessage({ eventName: PLUGIN_MESSAGE_API.initialized }, '*');
+    window.parent.postMessage(
+      { eventName: PLUGIN_MESSAGE_API.initialized },
+      "*"
+    );
   }, []);
 
-  const handleMessage = useCallback(
-    (event) => {
-      console.log('Inside iframe message!: ', event);
-    },
-    []
-  );
+  const handleMessage = useCallback((event) => {
+    console.log("Inside iframe message!: ", event);
+    setStyleguide(event.data.styleguide);
+  }, []);
 
   useEffect(() => {
-    window.addEventListener('message', handleMessage);
-    return () => window.removeEventListener('message', handleMessage);
+    window.addEventListener("message", handleMessage);
+    return () => window.removeEventListener("message", handleMessage);
   }, [handleMessage]);
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div>
+      {styleguide.colors.map((color) => {
+        return (
+          <div style={{ display: "flex" }}>
+            <div
+              style={{ width: 40, height: 40, backgroundColor: color.value, marginRight: 16 }}
+            />
+            <div>{color.name}</div>
+          </div>
+        );
+      })}
     </div>
   );
 }
