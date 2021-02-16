@@ -10,7 +10,7 @@ const PLUGIN_MESSAGE_API = {
 function App() {
   
   useEffect(() => {
-    window.postMessage({ eventName: PLUGIN_MESSAGE_API.initialized }, '*');
+    window.parent.postMessage({ eventName: PLUGIN_MESSAGE_API.initialized }, '*');
   }, []);
 
   const handleMessage = useCallback(
