@@ -17,7 +17,7 @@ function App() {
 
   const handleMessage = useCallback((event) => {
     console.log("Inside iframe message!: ", event);
-    setStyleguide(event.data.styleguide);
+    setStyleguide(event.data.styleguide || {});
   }, []);
 
   useEffect(() => {
@@ -27,7 +27,7 @@ function App() {
 
   return (
     <div>
-      {styleguide.colors.map((color) => {
+      {(styleguide?.colors || []).map((color) => {
         return (
           <div style={{ display: "flex" }}>
             <div
