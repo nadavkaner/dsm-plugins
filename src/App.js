@@ -2,7 +2,7 @@ import { useEffect, useCallback, useState } from "react";
 import "./App.css";
 
 const PLUGIN_MESSAGE_API = {
-  initialized: "initialized",
+  initialized: "initialized"
 };
 
 function App() {
