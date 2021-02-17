@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useState } from "react";
 import tinycolor from "tinycolor2";
+import { ReactComponent as AddIcon } from "./fab-add.svg";
 
 const PLUGIN_MESSAGE_API = {
   initialized: "dsm_initialized",
@@ -43,17 +44,14 @@ export default function AssetsListPlugin() {
     );
   }, []);
 
-  const saveMetadata = useCallback(() => {
-    window.parent.postMessage(
-      { eventName: PLUGIN_MESSAGE_API.saveMetadata, metadata: "hello" },
-      "*"
-    );
-  }, []);
-
   return (
     <div>
-      <button onClick={openAssetPicker}>Open Asset picker</button>
-      <button onClick={saveMetadata}>Save metadata</button>
+      <button
+        className="c-open-assets-picker__button"
+        onClick={openAssetPicker}
+      >
+        <AddIcon className="c-add-icon" style={{ color: "white" }} /> Add colors
+      </button>
       <div>{pluginData.block?.metadata}</div>
       {(pluginData.block?.items || []).map((color) => {
         const colorObj = tinycolor(color.value);
