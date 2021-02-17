@@ -1,13 +1,57 @@
-import React from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import tinycolor from "tinycolor2";
+import copy from "copy-to-clipboard";
+import { gql, useLazyQuery } from "@apollo/client";
 import { usePluginData } from "./hooks/usePluginData";
-import { Button } from "@material-ui/core";
+import { Button, CircularProgress } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import { usePluginHeight } from "./hooks/usePluginHeight";
+import useHovered from "./useHover";
+
+const GET_SNAPSHOTS = gql`
+  query GetSnapshots($organizationName: String, $styleguideName: String) {
+    styleguide(
+      organizationName: $organizationName
+      styleguideName: $styleguideName
+    ) {
+      _id
+      name
+      snapshots {
+        name
+        styleguide {
+          name
+          colors {
+            _id
+            name
+            value
+            externalLibraryId
+            assetId
+          }
+        }
+      }
+    }
+  }
+`;
 
 export default function AssetsListPlugin() {
   const { pluginData, openAssetPicker } = usePluginData();
   usePluginHeight();
+
+  const [getSnapshots, { loading, data, error }] = useLazyQuery(GET_SNAPSHOTS, {
+    fetchPolicy: "no-cache",
+  });
+
+  useEffect(() => {
+    if (pluginData?.styleguide && !data) {
+      const styleguide = pluginData.styleguide;
+      getSnapshots({
+        variables: {
+          organizationName: styleguide.organization,
+          styleguideName: styleguide.kebabName,
+        },
+      });
+    }
+  }, [pluginData?.styleguide, getSnapshots, data]);
 
   return (
     <div className="c-assets-list">
@@ -25,7 +69,7 @@ export default function AssetsListPlugin() {
         </div>
       )}
       <div className="c-assets-list">
-        {(pluginData.block?.items || []).map(color => {
+        {(pluginData.block?.items || []).map((color) => {
           const colorObj = tinycolor(color.value);
           return (
             <div className="c-color-row">
@@ -35,42 +79,153 @@ export default function AssetsListPlugin() {
               />
               <div className="c-color-row__color-name">{color.name}</div>
               <div style={{ display: "flex", flexDirection: "column" }}>
-                <div style={{ display: "flex" }}>
-                  <div className="c-color-row__color-representation-text">
-                    HEX
-                  </div>
-                  <div style={{ fontWeight: 500 }}>
-                    {colorObj.toHexString().toUpperCase()}
-                  </div>
-                </div>
-                <div style={{ display: "flex" }}>
-                  <div className="c-color-row__color-representation-text">
-                    RGBA
-                  </div>
-                  <div style={{ fontWeight: 500 }}>
-                    {colorObj.toRgbString()}
-                  </div>
-                </div>
-                <div style={{ display: "flex" }}>
-                  <div className="c-color-row__color-representation-text">
-                    HSL
-                  </div>
-                  <div style={{ fontWeight: 500 }}>
-                    {colorObj.toHslString()}
-                  </div>
-                </div>
-                <div style={{ display: "flex" }}>
-                  <div className="c-color-row__color-representation-text">
-                    HSV
-                  </div>
-                  <div style={{ fontWeight: 500 }}>
-                    {colorObj.toHsvString()}
-                  </div>
-                </div>
+                <ColorValueRow
+                  name="HEX"
+                  colorValue={colorObj.toHexString().toUpperCase()}
+                />
+                <ColorValueRow
+                  name="RGBA"
+                  colorValue={colorObj.toRgbString()}
+                />
+                <ColorValueRow name="HSL" colorValue={colorObj.toHslString()} />
+                <ColorValueRow name="HSV" colorValue={colorObj.toHsvString()} />
               </div>
+
+              <ColorHistory
+                color={color}
+                snapshots={data?.styleguide?.snapshots}
+                loading={loading}
+                error={error}
+              />
             </div>
           );
         })}
+      </div>
+    </div>
+  );
+}
+
+function ColorHistory({ color, snapshots, loading, error }) {
+  if (error) {
+    return null;
+  }
+
+  if (loading || !snapshots) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          marginTop: 12,
+        }}
+      >
+        <div style={{ marginBottom: 20, fontSize: 16, fontWeight: 500 }}>
+          History
+        </div>
+        <CircularProgress />
+      </div>
+    );
+  }
+
+  const colorHistory = snapshots
+    .map((snapshot) => {
+      const snapshotColors = snapshot.styleguide.colors;
+      const sameColorInSnapshot = (snapshotColors || []).find(
+        (snapshotColor) =>
+          snapshotColor.assetId === color.assetId &&
+          snapshotColor.externalLibraryId === color.externalLibraryId
+      );
+
+      return sameColorInSnapshot
+        ? { snapshot, snapshotColor: sameColorInSnapshot }
+        : null;
+    })
+    .filter((colorInSnapshot) => !!colorInSnapshot);
+
+  // Didn't find this color in snapshots
+  if (!colorHistory.length) {
+    return null;
+  }
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        marginTop: 12,
+      }}
+    >
+      <div style={{ marginBottom: 20, fontSize: 16, fontWeight: 500 }}>
+        History
+      </div>
+      {colorHistory.map(({ snapshot, snapshotColor }, index) => {
+        const colorObj = tinycolor(snapshotColor.value);
+        return (
+          <div
+            style={{ display: "flex", marginBottom: 8, alignItems: "center" }}
+            key={index}
+          >
+            <div
+              style={{
+                backgroundColor: snapshotColor.value,
+                width: 20,
+                height: 20,
+                marginRight: 12,
+              }}
+            ></div>
+            <div style={{ marginRight: 12, fontWeight: 500 }}>
+              {snapshot.name}
+            </div>
+            <div>{colorObj.toHexString().toUpperCase()}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function ColorValueRow({ name, colorValue }) {
+  const { isHovered, onMouseEnter, onMouseLeave } = useHovered();
+  const [copySucceeded, setCopySucceeded] = useState(null);
+
+  const onCopy = useCallback(
+    (text) => {
+      if (copySucceeded) {
+        clearTimeout(copySucceeded);
+      }
+
+      copy(text);
+      const timeoutId = setTimeout(() => setCopySucceeded(false), 1000);
+      setCopySucceeded(timeoutId);
+    },
+    [setCopySucceeded, copySucceeded]
+  );
+
+  return (
+    <div style={{ display: "flex" }}>
+      <div className="c-color-row__color-representation-text">{name}</div>
+      <div
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+        style={{ fontWeight: 500, userSelect: "none" }}
+      >
+        {copySucceeded ? (
+          <div
+            onClick={() => onCopy(colorValue)}
+            style={{ color: "#1f53d5", cursor: "pointer" }}
+          >
+            Copied!
+          </div>
+        ) : isHovered ? (
+          <div
+            onClick={() => onCopy(colorValue)}
+            style={{ color: "#1f53d5", cursor: "pointer" }}
+          >
+            Copy value
+          </div>
+        ) : (
+          colorValue
+        )}
       </div>
     </div>
   );
