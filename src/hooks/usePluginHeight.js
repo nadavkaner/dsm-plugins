@@ -1,4 +1,3 @@
-import { useLayoutEffect } from "react";
 import { PLUGIN_MESSAGE_API } from "../plugin-message-api";
 
 function usePluginHeight() {
