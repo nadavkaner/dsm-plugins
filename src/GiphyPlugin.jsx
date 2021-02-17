@@ -2,32 +2,61 @@ import React, { useState, useEffect, useCallback } from "react";
 import { GiphyFetch } from "@giphy/js-fetch-api";
 import { Gif } from "@giphy/react-components";
 import { usePluginData } from "./hooks/usePluginData";
+import { Button, TextField } from "@material-ui/core";
 
 const giphyFetch = new GiphyFetch("sXpGFDGZs0Dv1mmNFvYaGUvYwKX0PWIh");
 
 function GiphyPlugin() {
+  const [isSearched, setIsSearched] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [gif, setGif] = useState(null);
   const { pluginData, saveMetadata } = usePluginData();
   const { metadata: selectedGif } = pluginData.block || {};
+  const showShuffle = gif && isSearched;
 
   const { search, shuffle } = useGiphySearch(setGif);
 
   if (selectedGif) {
-    return <Gif gif={selectedGif} width={400} />;
+    return <Gif gif={selectedGif} />;
   }
+
+  const handleSearch = () => {
+    search(searchTerm);
+    setIsSearched(true);
+  };
 
   return (
     <div>
-      <div style={{ display: "flex" }}>
-        <input onChange={event => setSearchTerm(event.target.value)} />
-        <div>
-          <button onClick={() => search(searchTerm)}>Search</button>
-          {gif && <button onClick={() => shuffle()}>Shuffle</button>}
-          <button onClick={() => saveMetadata(gif)}>Save</button>
+      <div style={{ display: "flex", alignItems: "center", marginBottom: 24 }}>
+        <TextField
+          id="search-term"
+          label="Search"
+          value={searchTerm}
+          onChange={event => {
+            setSearchTerm(event.target.value);
+            setIsSearched(false);
+            setGif(null);
+          }}
+        />
+        <div style={{ marginLeft: 16 }}>
+          <Button
+            variant="outlined"
+            onClick={() => (showShuffle ? shuffle() : handleSearch())}
+            style={{ marginRight: 16 }}
+          >
+            {showShuffle ? "Shuffle" : "Search"}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => saveMetadata(gif)}
+            style={{ marginRight: 16 }}
+          >
+            Save
+          </Button>
         </div>
       </div>
-      {gif && <Gif gif={gif} width={400} />}
+      {gif && <Gif gif={gif} />}
     </div>
   );
 }
