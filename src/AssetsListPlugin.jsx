@@ -37,12 +37,15 @@ export default function AssetsListPlugin() {
   const { pluginData, openAssetPicker } = usePluginData();
   usePluginHeight();
 
-  const [getSnapshots, { loading, data, error }] = useLazyQuery(GET_SNAPSHOTS, {
-    fetchPolicy: "no-cache",
-  });
+  const [getSnapshots, { called, loading, data, error }] = useLazyQuery(
+    GET_SNAPSHOTS,
+    {
+      fetchPolicy: "no-cache",
+    }
+  );
 
   useEffect(() => {
-    if (pluginData?.styleguide && !data) {
+    if (pluginData?.styleguide && !called) {
       const styleguide = pluginData.styleguide;
       getSnapshots({
         variables: {
@@ -51,7 +54,7 @@ export default function AssetsListPlugin() {
         },
       });
     }
-  }, [pluginData?.styleguide, getSnapshots, data]);
+  }, [pluginData?.styleguide, getSnapshots, called]);
 
   return (
     <div className="c-assets-list">
