@@ -3,9 +3,11 @@ import tinycolor from "tinycolor2";
 import { usePluginData } from "./hooks/usePluginData";
 import { Button } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
+import { usePluginHeight } from "./hooks/usePluginHeight";
 
 export default function AssetsListPlugin() {
   const { pluginData, openAssetPicker } = usePluginData();
+  usePluginHeight();
 
   return (
     <div className="c-assets-list">

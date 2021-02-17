@@ -3,6 +3,7 @@ import { GiphyFetch } from "@giphy/js-fetch-api";
 import { Gif } from "@giphy/react-components";
 import { usePluginData } from "./hooks/usePluginData";
 import { Button, TextField } from "@material-ui/core";
+import { usePluginHeight } from "./hooks/usePluginHeight";
 
 const giphyFetch = new GiphyFetch("sXpGFDGZs0Dv1mmNFvYaGUvYwKX0PWIh");
 
@@ -13,6 +14,8 @@ function GiphyPlugin() {
   const { pluginData, saveMetadata } = usePluginData();
   const { metadata: selectedGif } = pluginData.block || {};
   const showShuffle = gif && isSearched;
+
+  usePluginHeight();
 
   const { search, shuffle } = useGiphySearch(setGif);
 
