@@ -36,6 +36,7 @@
   height: 40px;
   display: flex;
   align-items: center;
+  justify-content: center;
   margin-left: auto;
   margin-bottom: 8px;
   border-radius: 6px;
@@ -45,9 +46,18 @@
   font-size: 14px;
   background-color: #246be2;
   cursor: pointer;
+  position: fixed;
+  right: 8px;
+  top: 8px;
+  outline: none;
 }
 
 .c-add-icon g {
-  color: white;
   fill: white;
+}
+
+.c-assets-list {
+  height: 100%;
+  width: 100%;
+  min-height: 300px;
 }
