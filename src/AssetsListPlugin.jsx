@@ -1,50 +1,12 @@
-import React, { useEffect, useCallback, useState } from "react";
+import React from "react";
 import tinycolor from "tinycolor2";
 import { ReactComponent as AddIcon } from "./fab-add.svg";
+import { usePluginData } from "./hooks/usePluginData";
 import useHovered from "./useHover";
 
-const PLUGIN_MESSAGE_API = {
-  initialized: "dsm_initialized",
-  openAssetPicker: "dsm_openAssetPicker",
-  getDsmData: "dsm_getDsmData",
-  saveMetadata: "dsm-saveMetadata",
-};
-
 export default function AssetsListPlugin() {
+  const { pluginData, openAssetPicker } = usePluginData();
   const { isHovered, onMouseEnter, onMouseLeave } = useHovered();
-  const [pluginData, setPluginData] = useState({});
-
-  useEffect(() => {
-    window.parent.postMessage(
-      { eventName: PLUGIN_MESSAGE_API.initialized },
-      "*"
-    );
-  }, []);
-
-  const handleMessage = useCallback((event) => {
-    console.log("Inside iframe message!: ", event);
-    switch (event.data.eventName) {
-      case PLUGIN_MESSAGE_API.getDsmData: {
-        setPluginData(event.data || {});
-        break;
-      }
-      default: {
-        break;
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    window.addEventListener("message", handleMessage);
-    return () => window.removeEventListener("message", handleMessage);
-  }, [handleMessage]);
-
-  const openAssetPicker = useCallback(() => {
-    window.parent.postMessage(
-      { eventName: PLUGIN_MESSAGE_API.openAssetPicker },
-      "*"
-    );
-  }, []);
 
   return (
     <div
@@ -62,7 +24,7 @@ export default function AssetsListPlugin() {
         </button>
       )}
       <div className="c-assets-list">
-        {(pluginData.block?.items || []).map((color) => {
+        {(pluginData.block?.items || []).map(color => {
           const colorObj = tinycolor(color.value);
           return (
             <div className="c-color-row">
