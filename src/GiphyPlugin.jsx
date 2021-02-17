@@ -30,7 +30,7 @@ function GiphyPlugin() {
       <div style={{ display: "flex", alignItems: "center", marginBottom: 24 }}>
         <TextField
           id="search-term"
-          label="Search"
+          label="Search term"
           value={searchTerm}
           onChange={event => {
             setSearchTerm(event.target.value);
@@ -42,7 +42,7 @@ function GiphyPlugin() {
           <Button
             variant="outlined"
             onClick={() => (showShuffle ? shuffle() : handleSearch())}
-            style={{ marginRight: 16 }}
+            style={{ marginRight: 16, textTransform: "none" }}
           >
             {showShuffle ? "Shuffle" : "Search"}
           </Button>
@@ -50,7 +50,7 @@ function GiphyPlugin() {
             variant="contained"
             color="primary"
             onClick={() => saveMetadata(gif)}
-            style={{ marginRight: 16 }}
+            style={{ marginRight: 16, textTransform: "none" }}
           >
             Save
           </Button>

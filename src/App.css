@@ -32,24 +32,9 @@
 }
 
 .c-open-assets-picker__button {
-  width: 110px;
-  height: 40px;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-left: auto;
-  margin-bottom: 8px;
-  border-radius: 6px;
-  border: none;
-  color: white;
-  font-weight: 500;
-  font-size: 14px;
-  background-color: #246be2;
-  cursor: pointer;
-  position: fixed;
-  right: 8px;
-  top: 8px;
-  outline: none;
+  justify-content: flex-end;
+  padding: 12px;
 }
 
 .c-add-icon g {
@@ -60,4 +45,5 @@
   height: 100%;
   width: 100%;
   min-height: 300px;
+  position: relative;
 }

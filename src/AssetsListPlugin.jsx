@@ -1,27 +1,26 @@
 import React from "react";
 import tinycolor from "tinycolor2";
-import { ReactComponent as AddIcon } from "./fab-add.svg";
 import { usePluginData } from "./hooks/usePluginData";
-import useHovered from "./useHover";
+import { Button } from "@material-ui/core";
+import AddIcon from "@material-ui/icons/Add";
 
 export default function AssetsListPlugin() {
   const { pluginData, openAssetPicker } = usePluginData();
-  const { isHovered, onMouseEnter, onMouseLeave } = useHovered();
 
   return (
-    <div
-      className="c-assets-list"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-    >
-      {isHovered && (
-        <button
-          className="c-open-assets-picker__button"
-          onClick={openAssetPicker}
-        >
-          <AddIcon className="c-add-icon" style={{ color: "white" }} /> Add
-          colors
-        </button>
+    <div className="c-assets-list">
+      {!pluginData.readOnly && (
+        <div className="c-open-assets-picker__button">
+          <Button
+            style={{ textTransform: "none" }}
+            variant="contained"
+            color="primary"
+            onClick={openAssetPicker}
+          >
+            <AddIcon className="c-add-icon" style={{ color: "white" }} /> Add
+            colors
+          </Button>
+        </div>
       )}
       <div className="c-assets-list">
         {(pluginData.block?.items || []).map(color => {
