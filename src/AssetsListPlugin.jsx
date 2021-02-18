@@ -1,17 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
+import { useLazyQuery } from "@apollo/client";
+import { GET_SNAPSHOTS } from "./graphQL/queries";
 import tinycolor from "tinycolor2";
 import copy from "copy-to-clipboard";
 import { usePluginData } from "./hooks/usePluginData";
 import { Button, CircularProgress } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import { usePluginHeight } from "./hooks/usePluginHeight";
-import useHovered from "./useHover";
-import { useQuerySnapshots } from "./hooks/useQuerySnapshots";
+import useHovered from "./hooks/useHover";
 
 export default function AssetsListPlugin() {
   const { pluginData, openAssetPicker } = usePluginData();
-  const { getSnapshots, called, loading, data, error } = useQuerySnapshots();
   usePluginHeight();
+  const [getSnapshots, { called, loading, data, error }] = useLazyQuery(
+    GET_SNAPSHOTS
+  );
 
   useEffect(() => {
     if (pluginData?.styleguide && !called) {

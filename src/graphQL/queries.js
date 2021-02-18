@@ -1,4 +1,4 @@
-import { gql, useLazyQuery } from "@apollo/client";
+import { gql } from "@apollo/client";
 
 const GET_SNAPSHOTS = gql`
   query GetSnapshots($organizationName: String, $styleguideName: String) {
@@ -24,15 +24,4 @@ const GET_SNAPSHOTS = gql`
   }
 `;
 
-function useQuerySnapshots() {
-  const [getSnapshots, { called, loading, data, error }] = useLazyQuery(
-    GET_SNAPSHOTS,
-    {
-      fetchPolicy: "no-cache",
-    }
-  );
-
-  return { getSnapshots, called, loading, data, error };
-}
-
-export { useQuerySnapshots };
+export { GET_SNAPSHOTS };
