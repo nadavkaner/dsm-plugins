@@ -1,48 +1,17 @@
 import React, { useCallback, useEffect, useState } from "react";
 import tinycolor from "tinycolor2";
 import copy from "copy-to-clipboard";
-import { gql, useLazyQuery } from "@apollo/client";
 import { usePluginData } from "./hooks/usePluginData";
 import { Button, CircularProgress } from "@material-ui/core";
 import AddIcon from "@material-ui/icons/Add";
 import { usePluginHeight } from "./hooks/usePluginHeight";
 import useHovered from "./useHover";
-
-const GET_SNAPSHOTS = gql`
-  query GetSnapshots($organizationName: String, $styleguideName: String) {
-    styleguide(
-      organizationName: $organizationName
-      styleguideName: $styleguideName
-    ) {
-      _id
-      name
-      snapshots {
-        name
-        styleguide {
-          name
-          colors {
-            _id
-            name
-            value
-            externalLibraryId
-            assetId
-          }
-        }
-      }
-    }
-  }
-`;
+import { useQuerySnapshots } from "./hooks/useQuerySnapshots";
 
 export default function AssetsListPlugin() {
   const { pluginData, openAssetPicker } = usePluginData();
+  const { getSnapshots, called, loading, data, error } = useQuerySnapshots();
   usePluginHeight();
-
-  const [getSnapshots, { called, loading, data, error }] = useLazyQuery(
-    GET_SNAPSHOTS,
-    {
-      fetchPolicy: "no-cache",
-    }
-  );
 
   useEffect(() => {
     if (pluginData?.styleguide && !called) {
